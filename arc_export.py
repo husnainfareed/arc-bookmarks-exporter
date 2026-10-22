@@ -6,7 +6,6 @@ import html
 import json
 import os
 import sys
-import time
 from collections import defaultdict
 from datetime import date
 from pathlib import Path
@@ -109,7 +108,6 @@ def count_links(nodes):
 
 
 def to_netscape_html(nodes):
-    stamp = int(time.time())
     out = [
         "<!DOCTYPE NETSCAPE-Bookmark-file-1>",
         '<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">',
@@ -119,17 +117,17 @@ def to_netscape_html(nodes):
     ]
 
     def emit(nodes, depth):
-        pad = "    " * depth
+        pad = "\t" * depth
         for node in nodes:
-            title = html.escape(node["title"])
+            title = html.escape(node["title"], quote=False)
             if "children" in node:
-                out.append(f'{pad}<DT><H3 ADD_DATE="{stamp}">{title}</H3>')
+                out.append(f'{pad}<DT><H3>{title}</H3>')
                 out.append(f"{pad}<DL><p>")
                 emit(node["children"], depth + 1)
                 out.append(f"{pad}</DL><p>")
             else:
                 url = html.escape(node["url"], quote=True)
-                out.append(f'{pad}<DT><A HREF="{url}" ADD_DATE="{stamp}">{title}</A>')
+                out.append(f'{pad}<DT><A HREF="{url}">{title}</A>')
 
     emit(nodes, 1)
     out.append("</DL><p>")
