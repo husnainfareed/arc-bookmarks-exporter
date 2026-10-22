@@ -1,4 +1,4 @@
-# arc-export
+# arc-bookmarks-exporter
 
 Get your tabs out of Arc Browser. This turns Arc's sidebar (pinned tabs, folders, and optionally unpinned tabs) into a standard bookmarks HTML file that Chrome, Firefox, Safari, Edge, Brave, or Zen can import.
 
