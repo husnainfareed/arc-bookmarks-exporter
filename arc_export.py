@@ -34,16 +34,17 @@ def find_sidebar_file(explicit):
 
 def iter_profiles(data):
     """Yield (items_by_id, spaces) for every sidebar container that holds tabs."""
-    for container in data.get("sidebar", {}).get("containers", []):
+    sidebar = data.get("sidebar") if isinstance(data, dict) else None
+    for container in (sidebar or {}).get("containers") or []:
         if isinstance(container, dict) and "spaces" in container and "items" in container:
-            items = {i["id"]: i for i in container["items"] if isinstance(i, dict) and "id" in i}
-            spaces = [s for s in container["spaces"] if isinstance(s, dict)]
+            items = {i["id"]: i for i in container["items"] or [] if isinstance(i, dict) and "id" in i}
+            spaces = [s for s in container["spaces"] or [] if isinstance(s, dict)]
             yield items, spaces
 
 
 def space_roots(space):
     """newContainerIDs alternates a {"pinned"/"unpinned": ...} marker with the root item id."""
-    ids = space.get("newContainerIDs", [])
+    ids = space.get("newContainerIDs") or []
     for marker, root_id in zip(ids, ids[1:]):
         if isinstance(marker, dict) and isinstance(root_id, str):
             if "pinned" in marker:
@@ -60,8 +61,8 @@ def build_tree(root_id, items, children_of, seen=None):
             continue
         seen.add(child_id)
         item = items[child_id]
-        tab = item.get("data", {}).get("tab")
-        if tab is not None:
+        tab = (item.get("data") or {}).get("tab")
+        if isinstance(tab, dict):
             url = tab.get("savedURL") or ""
             if url:
                 title = item.get("title") or tab.get("savedTitle") or url
