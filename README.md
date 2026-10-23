@@ -4,8 +4,8 @@ Leaving Arc, or just want a backup? Arc has no proper bookmarks export: your pin
 
 ```bash
 python3 arc_export.py
-# MY SPACE: 163
-# WORK: 132
+# Personal: 163
+# Work: 132
 # Wrote 295 bookmarks to arc-bookmarks-2026-10-23.html
 ```
 
@@ -17,6 +17,7 @@ python3 arc_export.py
 - **Imports anywhere.** The output is the standard Netscape bookmarks format that Chrome, Firefox, Safari, Edge, Brave, Zen and others all read.
 - **Nothing to install.** It's one Python file that uses only the standard library.
 - **Read-only.** It never writes to Arc's data, so it's safe to run while Arc is open.
+- **Tells you what it left out.** `-v` lists anything it skipped, so you're never left guessing why a tab is missing.
 
 ## Getting started
 
@@ -46,6 +47,35 @@ Some common combinations:
 python3 arc_export.py --unpinned -o ~/Desktop/arc.html   # everything, onto the Desktop
 python3 arc_export.py -i ~/Downloads/StorableSidebar.json  # export someone else's sidebar
 ```
+
+## Seeing what it does
+
+Add `-v` to see which file it read, what it found, and what it skipped:
+
+```
+$ python3 arc_export.py -v
+reading /Users/you/Library/Application Support/Arc/StorableSidebar.json
+1 profile, 3 spaces
+Personal: 163
+Work: 132
+Side projects: 41
+skipped: 17 unpinned tabs (use --unpinned), 2 tabs with no URL, 1 empty folder
+Wrote 336 bookmarks to arc-bookmarks-2026-10-23.html
+```
+
+With more than one profile, spaces are listed under each profile:
+
+```
+2 profiles, 4 spaces
+Profile 1: 336
+  Personal: 163
+  Work: 132
+  Side projects: 41
+Profile 2: 58
+  School: 58
+```
+
+All of this goes to the terminal, never into the exported file. Combine `-v` with `--dry-run` to check everything before writing anything.
 
 ## What you get
 
@@ -89,11 +119,7 @@ Arc isn't installed in the usual place, or it hasn't been opened yet. Find the f
 None of your spaces have pinned tabs. If all your tabs are unpinned, run it again with `--unpinned`.
 
 **Some tabs are missing**
-Run with `-v` to see what was left out:
-
-```
-skipped: 16 unpinned tabs (use --unpinned), 2 tabs with no URL, 1 empty folder
-```
+Run with `-v` to see what was left out (see [Seeing what it does](#seeing-what-it-does)).
 
 Unpinned tabs are skipped unless you pass `--unpinned`. Tabs that have no URL, and folders with nothing in them, are always left out.
 
@@ -102,7 +128,7 @@ Arc's file format isn't documented, so an update can change it. Please [open an 
 
 ## Contributing
 
-Issues and pull requests are welcome. The whole tool is `arc_export.py`, about 170 lines, so it's easy to find your way around.
+Issues and pull requests are welcome. The whole tool is `arc_export.py`, about 200 lines, so it's easy to find your way around.
 
 ## License
 
