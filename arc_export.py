@@ -68,13 +68,13 @@ def build_tree(root_id, items, children_of, skipped, seen=None):
                 title = item.get("title") or tab.get("savedTitle") or url
                 nodes.append({"title": title, "url": url})
             else:
-                skipped["tabs with no URL"] += 1
+                skipped["no_url"] += 1
         else:
             children = build_tree(child_id, items, children_of, skipped, seen)
             if children:
                 nodes.append({"title": item.get("title") or "Untitled folder", "children": children})
             else:
-                skipped["empty folders"] += 1
+                skipped["empty"] += 1
     return nodes
 
 
@@ -98,7 +98,7 @@ def collect(data, include_unpinned, stats):
             name = space.get("title") or f"Space {n}"
             for root_id, pinned in sorted(space_roots(space), key=lambda r: not r[1]):
                 if not pinned and not include_unpinned:
-                    stats["unpinned tabs (use --unpinned)"] += count_links(
+                    stats["unpinned"] += count_links(
                         build_tree(root_id, items, children_of, Counter()))
                     continue
                 tree = build_tree(root_id, items, children_of, stats)
@@ -143,6 +143,17 @@ def to_netscape_html(nodes):
     return "\n".join(out) + "\n"
 
 
+def plural(n, word, words=None):
+    return f"{n} {word if n == 1 else words or word + 's'}"
+
+
+SKIP_LABELS = {
+    "unpinned": ("unpinned tab", "unpinned tabs", " (use --unpinned)"),
+    "no_url": ("tab with no URL", "tabs with no URL", ""),
+    "empty": ("empty folder", "empty folders", ""),
+}
+
+
 def print_summary(nodes, depth=0):
     for node in nodes:
         if "children" in node:
@@ -174,14 +185,15 @@ def main():
     nodes = collect(data, args.unpinned, stats)
     total = count_links(nodes)
     if args.verbose:
-        print(f"{stats.pop('profiles')} profile(s), {stats.pop('spaces')} spaces", file=sys.stderr)
+        print(f"{plural(stats['profiles'], 'profile')}, {plural(stats['spaces'], 'space')}", file=sys.stderr)
     if not total:
         sys.exit("error: no bookmarks found" + ("" if args.unpinned else " (try --unpinned)"))
 
     if args.dry_run or not args.quiet:
         print_summary(nodes)
     if args.verbose:
-        skipped = ", ".join(f"{n} {what}" for what, n in stats.items() if n)
+        skipped = ", ".join(plural(stats[key], one, many) + hint
+                            for key, (one, many, hint) in SKIP_LABELS.items() if stats[key])
         print(f"skipped: {skipped or 'nothing'}", file=sys.stderr)
     if args.dry_run:
         print(f"{total} bookmarks (dry run, nothing written)", file=sys.stderr)

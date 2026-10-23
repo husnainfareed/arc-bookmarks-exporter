@@ -92,7 +92,7 @@ None of your spaces have pinned tabs. If all your tabs are unpinned, run it agai
 Run with `-v` to see what was left out:
 
 ```
-skipped: 16 unpinned tabs (use --unpinned), 2 tabs with no URL, 1 empty folders
+skipped: 16 unpinned tabs (use --unpinned), 2 tabs with no URL, 1 empty folder
 ```
 
 Unpinned tabs are skipped unless you pass `--unpinned`. Tabs that have no URL, and folders with nothing in them, are always left out.
