@@ -6,7 +6,7 @@ import html
 import json
 import os
 import sys
-from collections import defaultdict
+from collections import Counter, defaultdict
 from datetime import date
 from pathlib import Path
 
@@ -53,7 +53,7 @@ def space_roots(space):
                 yield root_id, False
 
 
-def build_tree(root_id, items, children_of, seen=None):
+def build_tree(root_id, items, children_of, skipped, seen=None):
     seen = seen if seen is not None else set()
     nodes = []
     for child_id in children_of.get(root_id, []):
@@ -67,16 +67,22 @@ def build_tree(root_id, items, children_of, seen=None):
             if url:
                 title = item.get("title") or tab.get("savedTitle") or url
                 nodes.append({"title": title, "url": url})
+            else:
+                skipped["tabs with no URL"] += 1
         else:
-            children = build_tree(child_id, items, children_of, seen)
+            children = build_tree(child_id, items, children_of, skipped, seen)
             if children:
                 nodes.append({"title": item.get("title") or "Untitled folder", "children": children})
+            else:
+                skipped["empty folders"] += 1
     return nodes
 
 
-def collect(data, include_unpinned):
+def collect(data, include_unpinned, stats):
     profiles = []
     for items, spaces in iter_profiles(data):
+        stats["profiles"] += 1
+        stats["spaces"] += len(spaces)
         children_of = defaultdict(list)
         for item_id, item in items.items():
             children_of[item.get("parentID")].append(item_id)
@@ -92,8 +98,10 @@ def collect(data, include_unpinned):
             name = space.get("title") or f"Space {n}"
             for root_id, pinned in sorted(space_roots(space), key=lambda r: not r[1]):
                 if not pinned and not include_unpinned:
+                    stats["unpinned tabs (use --unpinned)"] += count_links(
+                        build_tree(root_id, items, children_of, Counter()))
                     continue
-                tree = build_tree(root_id, items, children_of)
+                tree = build_tree(root_id, items, children_of, stats)
                 if tree:
                     folders.append({"title": name if pinned else f"{name} (unpinned)", "children": tree})
         if folders:
@@ -149,22 +157,32 @@ def main():
     ap.add_argument("-o", "--output", type=Path, help="output file (default: arc-bookmarks-YYYY-MM-DD.html)")
     ap.add_argument("--unpinned", action="store_true", help="also export unpinned tabs")
     ap.add_argument("--dry-run", action="store_true", help="show what would be exported, write nothing")
-    ap.add_argument("-q", "--quiet", action="store_true", help="only print errors")
+    noise = ap.add_mutually_exclusive_group()
+    noise.add_argument("-v", "--verbose", action="store_true", help="also show what was read and what was skipped")
+    noise.add_argument("-q", "--quiet", action="store_true", help="only print errors")
     args = ap.parse_args()
 
     source = find_sidebar_file(args.input)
+    if args.verbose:
+        print(f"reading {source}", file=sys.stderr)
     try:
         data = json.loads(source.read_text(encoding="utf-8"))
     except json.JSONDecodeError as e:
         sys.exit(f"error: {source} is not valid JSON ({e})")
 
-    nodes = collect(data, args.unpinned)
+    stats = Counter()
+    nodes = collect(data, args.unpinned, stats)
     total = count_links(nodes)
+    if args.verbose:
+        print(f"{stats.pop('profiles')} profile(s), {stats.pop('spaces')} spaces", file=sys.stderr)
     if not total:
         sys.exit("error: no bookmarks found" + ("" if args.unpinned else " (try --unpinned)"))
 
     if args.dry_run or not args.quiet:
         print_summary(nodes)
+    if args.verbose:
+        skipped = ", ".join(f"{n} {what}" for what, n in stats.items() if n)
+        print(f"skipped: {skipped or 'nothing'}", file=sys.stderr)
     if args.dry_run:
         print(f"{total} bookmarks (dry run, nothing written)", file=sys.stderr)
         return

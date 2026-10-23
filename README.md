@@ -37,6 +37,7 @@ python3 arc_export.py             # write the file
 | `--unpinned` | Also export unpinned tabs. They go in a separate "*Space* (unpinned)" folder |
 | `--dry-run` | Print the number of bookmarks per space, and write nothing |
 | `-i, --input PATH` | Read a specific `StorableSidebar.json`, e.g. one copied from another machine |
+| `-v, --verbose` | Also show which file was read, and what was skipped and why |
 | `-q, --quiet` | Only print errors |
 
 Some common combinations:
@@ -88,10 +89,16 @@ Arc isn't installed in the usual place, or it hasn't been opened yet. Find the f
 None of your spaces have pinned tabs. If all your tabs are unpinned, run it again with `--unpinned`.
 
 **Some tabs are missing**
+Run with `-v` to see what was left out:
+
+```
+skipped: 16 unpinned tabs (use --unpinned), 2 tabs with no URL, 1 empty folders
+```
+
 Unpinned tabs are skipped unless you pass `--unpinned`. Tabs that have no URL, and folders with nothing in them, are always left out.
 
 **Arc changed something and it broke**
-Arc's file format isn't documented, so an update can change it. Please [open an issue](https://github.com/husnainfareed/arc-bookmarks-exporter/issues) with your OS, your Python version and the full error.
+Arc's file format isn't documented, so an update can change it. Please [open an issue](https://github.com/husnainfareed/arc-bookmarks-exporter/issues) with your OS, your Python version, and the output of `python3 arc_export.py -v --dry-run`.
 
 ## Contributing
 
