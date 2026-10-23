@@ -11,14 +11,15 @@ python3 arc_export.py
 
 ## Features
 
-- ✅ **Keeps your layout**: each space becomes a folder, nested folders stay nested, and tabs keep their sidebar order
-- ✅ **Pinned and unpinned tabs**: pinned tabs by default, and `--unpinned` adds the rest in a separate folder per space
-- ✅ **All your profiles**: with more than one Arc profile, each gets its own top-level folder
-- ✅ **Works in every browser**: writes the standard Netscape bookmarks file that Chrome, Firefox, Safari, Edge, Brave and Zen import
-- ✅ **macOS and Windows**: finds Arc's data on its own, or you can point it at a file with `--input`
-- ✅ **Copes with messy data**: missing titles, empty folders and broken entries don't crash it, and special characters are escaped properly
-- ✅ **Shows what it skipped**: `-v` tells you exactly what was left out and why, and `--dry-run` previews the export without writing anything
-- ✅ **Read-only**: never touches Arc's data, so it's safe to run while Arc is open
+- ✅ **Every Profile**: Exports from all your Arc profiles at once
+- ✅ **Pinned & Unpinned**: Pinned tabs by default, unpinned ones with `--unpinned`
+- ✅ **Folder Structure Kept**: Spaces and nested folders come out just as they are in Arc
+- ✅ **Sidebar Order**: Tabs stay in the same order as your sidebar
+- ✅ **Universal Format**: Standard bookmarks HTML that every major browser imports
+- ✅ **macOS & Windows**: Finds Arc's data automatically on both
+- ✅ **Robust Parsing**: Handles missing titles, empty folders and odd characters
+- ✅ **Verbose & Dry Run**: See what was found and skipped before writing anything
+- ✅ **Read-Only**: Never modifies Arc's data
 
 ## Getting started
 
