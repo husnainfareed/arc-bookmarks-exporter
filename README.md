@@ -1,6 +1,8 @@
 # arc-bookmarks-exporter
 
-Leaving Arc, or just want a backup? Arc has no proper bookmarks export: your pinned tabs and folders live in its sidebar, not in a bookmarks file. This script reads that sidebar and writes a regular bookmarks HTML file that any browser can import.
+Arc doesn’t give you a real bookmarks export. Your pinned tabs, folders, and Spaces live in the sidebar, not in a standard bookmarks file.
+
+This script reads Arc’s sidebar data and turns it into a normal bookmarks HTML file that any browser can import.
 
 ```bash
 python3 arc_export.py
