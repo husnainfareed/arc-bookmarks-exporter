@@ -5,6 +5,7 @@ import argparse
 import html
 import json
 import os
+import re
 import sys
 from collections import Counter, defaultdict
 from datetime import date
@@ -109,7 +110,7 @@ def collect(data, include_unpinned, stats):
 
     if len(profiles) == 1:
         return profiles[0]
-    return [{"title": f"Profile {n}", "children": f} for n, f in enumerate(profiles, 1)]
+    return [{"title": f"Profile {n}", "children": f, "profile": True} for n, f in enumerate(profiles, 1)]
 
 
 def count_links(nodes):
@@ -128,7 +129,8 @@ def to_netscape_html(nodes):
     def emit(nodes, depth):
         pad = "\t" * depth
         for node in nodes:
-            title = html.escape(node["title"], quote=False)
+            # Importers read the file line by line, so a title must stay on one line.
+            title = html.escape(re.sub(r"[\r\n\t]+", " ", node["title"]), quote=False)
             if "children" in node:
                 out.append(f'{pad}<DT><H3>{title}</H3>')
                 out.append(f"{pad}<DL><p>")
@@ -158,7 +160,7 @@ def print_summary(nodes, depth=0):
     for node in nodes:
         if "children" in node:
             print(f"{'  ' * depth}{node['title']}: {count_links(node['children'])}", file=sys.stderr)
-            if depth == 0 and node["title"].startswith("Profile "):
+            if node.get("profile"):
                 print_summary(node["children"], depth + 1)
 
 
@@ -178,6 +180,10 @@ def main():
         print(f"reading {source}", file=sys.stderr)
     try:
         data = json.loads(source.read_text(encoding="utf-8"))
+    except OSError as e:
+        sys.exit(f"error: can't read {source} ({e.strerror})")
+    except UnicodeDecodeError:
+        sys.exit(f"error: {source} is not a text file")
     except json.JSONDecodeError as e:
         sys.exit(f"error: {source} is not valid JSON ({e})")
 
@@ -200,7 +206,10 @@ def main():
         return
 
     output = args.output or Path(f"arc-bookmarks-{date.today().isoformat()}.html")
-    output.write_text(to_netscape_html(nodes), encoding="utf-8")
+    try:
+        output.write_text(to_netscape_html(nodes), encoding="utf-8")
+    except OSError as e:
+        sys.exit(f"error: can't write {output} ({e.strerror})")
     if not args.quiet:
         print(f"Wrote {total} bookmarks to {output}", file=sys.stderr)
 
