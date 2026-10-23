@@ -9,15 +9,18 @@ python3 arc_export.py
 # Wrote 295 bookmarks to arc-bookmarks-2026-10-23.html
 ```
 
-## Why use it
+## Features
 
-- **Your sidebar comes through as you left it.** Each space becomes a folder, nested folders stay nested, and tabs keep the order you see in Arc.
-- **Pinned tabs by default.** Add `--unpinned` to bring the loose tabs along too.
-- **Every profile.** If you use more than one Arc profile, each one gets its own top-level folder.
-- **Imports anywhere.** The output is the standard Netscape bookmarks format that Chrome, Firefox, Safari, Edge, Brave, Zen and others all read.
-- **Nothing to install.** It's one Python file that uses only the standard library.
-- **Read-only.** It never writes to Arc's data, so it's safe to run while Arc is open.
-- **Tells you what it left out.** `-v` lists anything it skipped, so you're never left guessing why a tab is missing.
+- ✅ **Keeps your layout**: each space becomes a folder, nested folders stay nested, and tabs keep their sidebar order
+- ✅ **Pinned and unpinned tabs**: pinned tabs by default, and `--unpinned` adds the rest in a separate folder per space
+- ✅ **All your profiles**: with more than one Arc profile, each gets its own top-level folder
+- ✅ **Works in every browser**: writes the standard Netscape bookmarks file that Chrome, Firefox, Safari, Edge, Brave and Zen import
+- ✅ **macOS and Windows**: finds Arc's data on its own, or you can point it at a file with `--input`
+- ✅ **Copes with messy data**: missing titles, empty folders and broken entries don't crash it, and special characters are escaped properly
+- ✅ **Shows what it skipped**: `-v` tells you exactly what was left out and why, and `--dry-run` previews the export without writing anything
+- ✅ **Clear error messages**: a missing, unreadable or invalid file gets a one-line explanation, not a stack trace
+- ✅ **Zero dependencies**: a single Python file that only uses the standard library
+- ✅ **Read-only**: never touches Arc's data, so it's safe to run while Arc is open
 
 ## Getting started
 
@@ -114,6 +117,15 @@ Inside, every tab and folder is an item that points to its parent. Each space re
 
 **`error: can't find .../StorableSidebar.json`**
 Arc isn't installed in the usual place, or it hasn't been opened yet. Find the file yourself and pass it with `--input`.
+
+**`error: can't read ...` or `error: ... is not a text file`**
+The file exists but couldn't be opened. Check its permissions, or make sure `--input` points at `StorableSidebar.json` itself and not some other file.
+
+**`error: ... is not valid JSON`**
+The file is damaged or only partly written. Quit Arc so it saves the file properly, then try again.
+
+**`error: can't write ...`**
+The folder you gave to `-o` doesn't exist, or you can't write to it. Pick another path or create the folder first.
 
 **`error: no bookmarks found (try --unpinned)`**
 None of your spaces have pinned tabs. If all your tabs are unpinned, run it again with `--unpinned`.
