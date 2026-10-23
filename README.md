@@ -18,8 +18,6 @@ python3 arc_export.py
 - ✅ **macOS and Windows**: finds Arc's data on its own, or you can point it at a file with `--input`
 - ✅ **Copes with messy data**: missing titles, empty folders and broken entries don't crash it, and special characters are escaped properly
 - ✅ **Shows what it skipped**: `-v` tells you exactly what was left out and why, and `--dry-run` previews the export without writing anything
-- ✅ **Clear error messages**: a missing, unreadable or invalid file gets a one-line explanation, not a stack trace
-- ✅ **Zero dependencies**: a single Python file that only uses the standard library
 - ✅ **Read-only**: never touches Arc's data, so it's safe to run while Arc is open
 
 ## Getting started
